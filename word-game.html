@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e2e;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #ffafcc;
+            margin-top: 20px;
+        }
+        #game-container {
+            background-color: #3a3a58;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 500px;
+        }
+        #word-display {
+            font-size: 2rem;
+            letter-spacing: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        #letters {
+            margin: 20px 0;
+        }
+        .letter-btn {
+            margin: 5px;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            background-color: #ffafcc;
+            color: #3a3a58;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .letter-btn:hover {
+            background-color: #ff8fa3;
+        }
+        #feedback {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #ff8fa3;
+            color: #3a3a58;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Guessing Game</h1>
+    <div id="game-container">
+        <p id="instructions">Guess the hidden word one letter at a time. Be careful, you only get 6 wrong guesses!</p>
+        <div id="word-display">_ _ _ _ _</div>
+        <div id="letters"></div>
+        <p id="feedback"></p>
+        <button id="reset-btn" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <script>
+        // Words for the game
+        const words = ["javascript", "html", "css", "programming", "developer", "bootstrap", "creative"];
+        let chosenWord = "";
+        let wordState = [];
+        let wrongGuesses = 0;
+        const maxGuesses = 6;
+
+        const wordDisplay = document.getElementById('word-display');
+        const feedback = document.getElementById('feedback');
+        const lettersContainer = document.getElementById('letters');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Initialize the game
+        function initGame() {
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            wordState = Array(chosenWord.length).fill("_");
+            wrongGuesses = 0;
+            feedback.textContent = "";
+            resetBtn.style.display = "none";
+            renderWord();
+            renderLetters();
+        }
+
+        // Display the word state
+        function renderWord() {
+            wordDisplay.textContent = wordState.join(" ");
+        }
+
+        // Render letter buttons
+        function renderLetters() {
+            lettersContainer.innerHTML = "";
+            const alphabet = "abcdefghijklmnopqrstuvwxyz";
+            for (let letter of alphabet) {
+                const btn = document.createElement("button");
+                btn.textContent = letter;
+                btn.classList.add("letter-btn");
+                btn.onclick = () => handleGuess(letter, btn);
+                lettersContainer.appendChild(btn);
+            }
+        }
+
+        // Handle letter guess
+        function handleGuess(letter, button) {
+            button.disabled = true;
+            if (chosenWord.includes(letter)) {
+                updateWordState(letter);
+            } else {
+                wrongGuesses++;
+                feedback.textContent = `Wrong guess! You have ${maxGuesses - wrongGuesses} guesses left.`;
+                feedback.style.color = "#ff8fa3";
+            }
+            checkGameStatus();
+        }
+
+        // Update the word state
+        function updateWordState(letter) {
+            for (let i = 0; i < chosenWord.length; i++) {
+                if (chosenWord[i] === letter) {
+                    wordState[i] = letter;
+                }
+            }
+            renderWord();
+            feedback.textContent = "Good guess!";
+            feedback.style.color = "#b8f1b0";
+        }
+
+        // Check if the game is over
+        function checkGameStatus() {
+            if (!wordState.includes("_")) {
+                feedback.textContent = "🎉 You won! Great job!";
+                feedback.style.color = "#b8f1b0";
+                endGame();
+            } else if (wrongGuesses >= maxGuesses) {
+                feedback.textContent = `😔 Game over! The word was "${chosenWord}".`;
+                feedback.style.color = "#ff8fa3";
+                endGame();
+            }
+        }
+
+        // End the game
+        function endGame() {
+            document.querySelectorAll('.letter-btn').forEach(btn => btn.disabled = true);
+            resetBtn.style.display = "block";
+        }
+
+        // Reset the game
+        function resetGame() {
+            initGame();
+        }
+
+        // Start the game for the first time
+        initGame();
+    </script>
+</body>
+</html>
